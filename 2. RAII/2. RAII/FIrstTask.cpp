@@ -15,7 +15,7 @@ SmartArray::SmartArray(const SmartArray& smart_array_obj) {
 };
 
 void SmartArray::set_in_array(int index, int value) {
-	if (index <= count && index >= 0) {
+	if (index < count && index >= 0) {
 		smart_array[index] = value;
 	}
 	else {
