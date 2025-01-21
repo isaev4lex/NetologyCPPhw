@@ -1,0 +1,9 @@
+C:/Users/isaev/Desktop/Netology HW/3. Testing/out/build/x64-debug/CMakeFiles/demoVendorCatch2.dir
+C:/Users/isaev/Desktop/Netology HW/3. Testing/out/build/x64-debug/CMakeFiles/edit_cache.dir
+C:/Users/isaev/Desktop/Netology HW/3. Testing/out/build/x64-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/isaev/Desktop/Netology HW/3. Testing/out/build/x64-debug/Catch2/CMakeFiles/edit_cache.dir
+C:/Users/isaev/Desktop/Netology HW/3. Testing/out/build/x64-debug/Catch2/CMakeFiles/rebuild_cache.dir
+C:/Users/isaev/Desktop/Netology HW/3. Testing/out/build/x64-debug/Catch2/src/CMakeFiles/Catch2.dir
+C:/Users/isaev/Desktop/Netology HW/3. Testing/out/build/x64-debug/Catch2/src/CMakeFiles/Catch2WithMain.dir
+C:/Users/isaev/Desktop/Netology HW/3. Testing/out/build/x64-debug/Catch2/src/CMakeFiles/edit_cache.dir
+C:/Users/isaev/Desktop/Netology HW/3. Testing/out/build/x64-debug/Catch2/src/CMakeFiles/rebuild_cache.dir
