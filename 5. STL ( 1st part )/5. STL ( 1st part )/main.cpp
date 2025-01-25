@@ -23,42 +23,48 @@ void first_task() {
 	}
 }
 
-void second_task() {
-    std::string user_input;
-    std::cout << "[IN]:" << std::endl;
-    std::getline(std::cin, user_input);
-
-    try {
-        int count = std::stoi(user_input);
-
-        if (count <= 0) {
-            throw std::invalid_argument("Must be greater than zero!");
-        }
-
-        std::set<int> user_nums;
-        int i = 0;
-
-        while (i < count) {
-            std::getline(std::cin, user_input);
-
-            try {
-                int new_num = std::stoi(user_input);
-                user_nums.insert(new_num);
-            }
-            catch (std::exception& e) {
-                std::cerr << e.what() << std::endl;
-            }
-
-            i++;
-        }
-
-        std::cout << "[OUT]:" << std::endl;
-        for (auto j = user_nums.rbegin(); j != user_nums.rend(); j++) {
-            std::cout << *j << std::endl;
-        }
+namespace second_task {
+    std::vector<int> filter_unique(const std::vector<int>& input) {
+        std::set<int> unique_nums(input.begin(), input.end());
+        return std::vector<int>(unique_nums.rbegin(), unique_nums.rend());
     }
-    catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
+
+    void second_task() {
+        std::string user_input;
+        std::cout << "[IN]:" << std::endl;
+
+        try {
+            std::getline(std::cin, user_input);
+            int count = std::stoi(user_input);
+
+            if (count <= 0) {
+                throw std::invalid_argument("Must be greater than zero!");
+            }
+
+            std::vector<int> user_nums;
+
+            for (int i = 0; i < count; ++i) {
+                std::getline(std::cin, user_input);
+                try {
+                    int new_num = std::stoi(user_input);
+                    user_nums.push_back(new_num);
+                }
+                catch (const std::exception& e) {
+                    std::cerr << "Invalid input: " << e.what() << std::endl;
+                }
+            }
+
+            std::vector<int> unique_nums = filter_unique(user_nums);
+
+            std::cout << "[OUT]:" << std::endl;
+            for (int num : unique_nums) {
+                std::cout << num << std::endl;
+            }
+
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
     }
 }
 
@@ -120,16 +126,16 @@ namespace thirdtask {
 int main(int argv, char** argc) {
 
 	//first_task();
-    //second_task();
+    second_task::second_task();
 
-    thirdtask::AnalogVector<std::string> myanalog_vector;
+    /*thirdtask::AnalogVector<std::string> myanalog_vector;
     myanalog_vector.push_back("Hello");
     myanalog_vector.push_back("World");
     myanalog_vector.push_back("!");
 
     std::cout << "AnalogVector 2nd index -  " << myanalog_vector.at(2) << std::endl;
     std::cout << "AnalogVector size: " << myanalog_vector.size() << std::endl;
-    std::cout << "AnalogVector capacity: " << myanalog_vector.capacity() << std::endl;
+    std::cout << "AnalogVector capacity: " << myanalog_vector.capacity() << std::endl;*/
 
 	return 0;
 }
