@@ -27,42 +27,33 @@ namespace second_task {
 	class BigNumber {
 	private:
 		std::vector<int> big_num;
+
 	public:
 		BigNumber(std::string new_num) {
 			for (char i : new_num) {
-				big_num.push_back(i - 48);
+				big_num.push_back(i - '0');
 			}
 		}
 
-		BigNumber(const std::vector<int>& digits) {
-			big_num = digits;
-		}
+		BigNumber(const std::vector<int>& digits) : big_num(digits) {}
 
+		BigNumber(const BigNumber& another_big) : big_num(another_big.big_num) {}
 
-		BigNumber(const BigNumber& another_big) {
-			big_num = another_big.big_num;
-		}
-
-		BigNumber(BigNumber&& another_big) {
-			big_num = std::move(another_big.big_num);
-		}
+		BigNumber(BigNumber&& another_big) noexcept : big_num(std::move(another_big.big_num)) {}
 
 		BigNumber& operator=(const BigNumber& another_big) {
-			big_num = another_big.big_num;
+			if (this != &another_big) {
+				big_num = another_big.big_num;
+			}
 			return *this;
 		}
 
-		BigNumber& operator=(BigNumber&& another_big) {
-			big_num = std::move(another_big.big_num);
+		BigNumber& operator=(BigNumber&& another_big) noexcept {
+			if (this != &another_big) {
+				big_num = std::move(another_big.big_num);
+			}
 			return *this;
 		}
-
-		/*  11
-			123 
-			 88
-			____
-			211
-		*/
 
 		BigNumber operator+(const BigNumber& another_big) const {
 			std::vector<int> result;
@@ -86,7 +77,6 @@ namespace second_task {
 			}
 
 			std::reverse(result.begin(), result.end());
-
 			return BigNumber(result);
 		}
 
@@ -110,6 +100,24 @@ namespace second_task {
 			}
 
 			return BigNumber(result);
+		}
+
+		BigNumber operator*(int num) const {
+			if (num == 0) return BigNumber("0");
+
+			BigNumber result("0");
+			BigNumber multiplier = *this;
+			int absNum = std::abs(num);
+
+			while (absNum > 0) {
+				if (absNum % 2 == 1) {
+					result = result + multiplier;
+				}
+				multiplier = multiplier + multiplier;
+				absNum /= 2;
+			}
+
+			return result;
 		}
 
 		friend std::ostream& operator<<(std::ostream& os, const BigNumber& num) {
@@ -137,7 +145,7 @@ namespace second_task {
 
 int main(int argc, char** argv) {
 
-	//first_task::start();
+	//	first_task::start();
 	second_task::start();
 
 	return 0;
