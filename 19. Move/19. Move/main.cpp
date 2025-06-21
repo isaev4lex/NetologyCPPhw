@@ -136,7 +136,9 @@ namespace second_task {
 
 		std::cout << result << std::endl;
 
-		result = number1 * number2;
+		result = number1 * 2;
+
+		
 
 		std::cout << result << std::endl;
 
