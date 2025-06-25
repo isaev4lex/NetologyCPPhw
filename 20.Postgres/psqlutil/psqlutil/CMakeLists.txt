@@ -19,6 +19,5 @@ target_link_libraries(psqlUtil PRIVATE
     Ws2_32
 )
 
-# Добавление пути к DLL PostgreSQL в PATH при запуске из Visual Studio
 set_property(TARGET psqlUtil PROPERTY VS_DEBUGGER_ENVIRONMENT
     "PATH=%PATH%;D:\\Programs\\PostgreSQL\\17\\bin")

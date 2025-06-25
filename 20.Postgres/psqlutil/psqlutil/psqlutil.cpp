@@ -3,6 +3,14 @@
 #include <string>
 #include <vector>
 
+struct ClientInfo {
+    int client_id;
+    std::string first_name;
+    std::string last_name;
+    std::string email;
+    std::string phone;
+};
+
 class ClientDB {
 private:
     pqxx::connection* conn;
@@ -15,7 +23,6 @@ public:
     static void createDatabaseIfNotExists(const std::string& dbname, const std::string& admin_conn_info) {
         pqxx::connection admin_conn(admin_conn_info);
 
-        // Сначала проверим — это можно делать в транзакции
         {
             pqxx::work check(admin_conn);
             pqxx::result r = check.exec_params("SELECT 1 FROM pg_database WHERE datname = $1", dbname);
@@ -27,7 +34,6 @@ public:
             }
         }
 
-        // А вот создание базы — ТОЛЬКО вне транзакции
         {
             pqxx::nontransaction direct(admin_conn);
             direct.exec("CREATE DATABASE \"" + dbname + "\"");
@@ -55,16 +61,35 @@ public:
         std::cout << "Tables created successfully." << std::endl;
     }
 
-    void addClient(const std::string& first_name, const std::string& last_name, const std::string& email) {
+    int ensureClientExists(const std::string& first_name, const std::string& last_name, const std::string& email) {
         pqxx::work txn(*conn);
-        txn.exec_params("INSERT INTO clients(first_name, last_name, email) VALUES ($1, $2, $3)",
+        pqxx::result r = txn.exec_params("SELECT client_id FROM clients WHERE email = $1", email);
+        if (!r.empty()) {
+            int existing_id = r[0]["client_id"].as<int>();
+            txn.commit();
+            return existing_id;
+        }
+        pqxx::result insert = txn.exec_params(
+            "INSERT INTO clients(first_name, last_name, email) VALUES ($1, $2, $3) RETURNING client_id",
             first_name, last_name, email);
+        int new_id = insert[0]["client_id"].as<int>();
         txn.commit();
+        std::cout << "Client inserted automatically: " << new_id << std::endl;
+        return new_id;
+    }
+
+    void addClient(const std::string& first_name, const std::string& last_name, const std::string& email) {
+        ensureClientExists(first_name, last_name, email);
         std::cout << "Client added successfully." << std::endl;
     }
 
     void addPhone(int client_id, const std::string& phone) {
         pqxx::work txn(*conn);
+        pqxx::result r = txn.exec_params("SELECT 1 FROM clients WHERE client_id = $1", client_id);
+        if (r.empty()) {
+            txn.commit();
+            throw std::runtime_error("Client with ID " + std::to_string(client_id) + " does not exist.");
+        }
         txn.exec_params("INSERT INTO phones(client_id, phone) VALUES ($1, $2)",
             client_id, phone);
         txn.commit();
@@ -93,7 +118,7 @@ public:
         std::cout << "Client deleted successfully." << std::endl;
     }
 
-    void findClient(const std::string& query) {
+    std::vector<ClientInfo> findClient(const std::string& query) {
         pqxx::work txn(*conn);
         pqxx::result res = txn.exec_params(
             "SELECT c.client_id, first_name, last_name, email, phone "
@@ -102,12 +127,17 @@ public:
             query
         );
 
+        std::vector<ClientInfo> results;
         for (auto row : res) {
-            std::cout << "Client ID: " << row["client_id"].as<int>()
-                << ", Name: " << row["first_name"].c_str() << " " << row["last_name"].c_str()
-                << ", Email: " << row["email"].c_str()
-                << ", Phone: " << (row["phone"].is_null() ? "None" : row["phone"].c_str()) << std::endl;
+            results.push_back({
+                row["client_id"].as<int>(),
+                row["first_name"].c_str(),
+                row["last_name"].c_str(),
+                row["email"].c_str(),
+                row["phone"].is_null() ? "" : row["phone"].c_str()
+                });
         }
+        return results;
     }
 
     ~ClientDB() {
@@ -116,30 +146,49 @@ public:
 };
 
 int main() {
-    const std::string admin_conn_info = "host=localhost port=5432 dbname=postgres user=postgres password=QWaszx123!";
-    const std::string target_db = "clientdb";
+    try {
+        const std::string admin_conn_info = "host=localhost port=5432 dbname=postgres user=postgres password=QWaszx123!";
+        const std::string target_db = "clientdb";
 
-    ClientDB::createDatabaseIfNotExists(target_db, admin_conn_info);
+        ClientDB::createDatabaseIfNotExists(target_db, admin_conn_info);
 
-    ClientDB db("host=localhost port=5432 dbname=" + target_db + " user=postgres password=QWaszx123!");
+        ClientDB db("host=localhost port=5432 dbname=" + target_db + " user=postgres password=QWaszx123!");
 
-    db.createTables();
+        db.createTables();
 
-    db.addClient("John", "Doe", "john.doe@example.com");
-    db.addClient("Jane", "Smith", "jane.smith@example.com");
+        int id1 = db.ensureClientExists("Dolorez", "Haze", "dolorez.haze@gmail.com");
+        int id2 = db.ensureClientExists("Elliot", "Alderson", "elliot.alderson@protonmail.com");
 
-    db.addPhone(1, "+1234567890");
-    db.addPhone(1, "+0987654321");
-    db.addPhone(2, "+111222333");
+        db.addPhone(id1, "+1265496558");
+        db.addPhone(id1, "+0987654321");
+        db.addPhone(id2, "+111222333");
 
-    db.updateClient(1, "Johnny", "Doe", "johnny.doe@example.com");
+        db.updateClient(id1, "Dolorez", "Haze", "dolorez.haze@gmail.com");
 
-    db.deletePhone(2);
+        db.deletePhone(2);
 
-    db.findClient("Johnny");
-    db.findClient("+111222333");
+        auto found1 = db.findClient("Dolorez");
+        for (const auto& client : found1) {
+            std::cout << "Client ID: " << client.client_id
+                << ", Name: " << client.first_name << " " << client.last_name
+                << ", Email: " << client.email
+                << ", Phone: " << (client.phone.empty() ? "None" : client.phone) << std::endl;
+        }
 
-    db.deleteClient(2);
+        auto found2 = db.findClient("+111222333");
+        for (const auto& client : found2) {
+            std::cout << "Client ID: " << client.client_id
+                << ", Name: " << client.first_name << " " << client.last_name
+                << ", Email: " << client.email
+                << ", Phone: " << (client.phone.empty() ? "None" : client.phone) << std::endl;
+        }
+
+        db.deleteClient(id2);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
 
     return 0;
 }
