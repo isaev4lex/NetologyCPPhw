@@ -41,10 +41,10 @@ namespace first_task {
 
 namespace second_task {
 
-    const std::size_t MIN_BLOCK_SIZE = 1000;
+    const int MIN_BLOCK_SIZE = 1000;
     template<typename Iterator, typename Function>
     void parallel_for_each(Iterator begin, Iterator end, Function func) {
-        std::size_t len = std::distance(begin, end);
+        int len = std::distance(begin, end);
 
         if (len <= MIN_BLOCK_SIZE) {
             std::for_each(begin, end, func);
@@ -74,6 +74,6 @@ namespace second_task {
 
 int main() {
     //first_task::start();
-    //second_task::start();
+    second_task::start();
 	return 0;
 }
