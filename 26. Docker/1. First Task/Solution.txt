@@ -1,0 +1,43 @@
+PS C:\Users\Saint Alex\Desktop> cd '.\Netology HW\'
+PS C:\Users\Saint Alex\Desktop\Netology HW> cd '.\26. Docker\'
+PS C:\Users\Saint Alex\Desktop\Netology HW\26. Docker> docker build -t ubuntu-dev .
+[+] Building 27.4s (6/6) FINISHED                                                                  docker:desktop-linux
+ => [internal] load build definition from Dockerfile                                                               0.1s
+ => => transferring dockerfile: 138B                                                                               0.0s
+ => [internal] load metadata for docker.io/library/ubuntu:16.04                                                    2.6s
+ => [internal] load .dockerignore                                                                                  0.1s
+ => => transferring context: 2B                                                                                    0.0s
+ => [1/2] FROM docker.io/library/ubuntu:16.04@sha256:1f1a2d56de1d604801a9671f301190704c25d604a416f59e03c04f5c6ffe  3.5s
+ => => resolve docker.io/library/ubuntu:16.04@sha256:1f1a2d56de1d604801a9671f301190704c25d604a416f59e03c04f5c6ffe  0.0s
+ => => sha256:fb15d46c38dcd1ea0b1990006c3366ecd10c79d374f341687eb2cb23a2c8672e 170B / 170B                         0.4s
+ => => sha256:da8ef40b9ecabc2679fe2419957220c0272a965c5cf7e0269fa1aeeb8c56f2e1 528B / 528B                         0.5s
+ => => sha256:b51569e7c50720acf6860327847fe342a1afbe148d24c529fb81df105e3eed01 857B / 857B                         0.7s
+ => => sha256:58690f9b18fca6469a14da4e212c96849469f9b1be6661d2342a4bf01774aa50 46.50MB / 46.50MB                   2.4s
+ => => extracting sha256:58690f9b18fca6469a14da4e212c96849469f9b1be6661d2342a4bf01774aa50                          0.7s
+ => => extracting sha256:b51569e7c50720acf6860327847fe342a1afbe148d24c529fb81df105e3eed01                          0.0s
+ => => extracting sha256:da8ef40b9ecabc2679fe2419957220c0272a965c5cf7e0269fa1aeeb8c56f2e1                          0.0s
+ => => extracting sha256:fb15d46c38dcd1ea0b1990006c3366ecd10c79d374f341687eb2cb23a2c8672e                          0.0s
+ => [2/2] RUN apt update && apt install -y     gcc     g++     nano     make                                      14.6s
+ => exporting to image                                                                                             6.2s
+ => => exporting layers                                                                                            5.1s
+ => => exporting manifest sha256:0ef056fa45155bab5e54dab849d5d31d4193eb217ebb78382f0d8f506861d2f0                  0.0s
+ => => exporting config sha256:763624f262c88cd45f88f69df4262b9efdf3e5d699ccf032327e0b974ac87de3                    0.0s
+ => => exporting attestation manifest sha256:dc68a4ab1f3dcc364f184a8d5e595badc5560d9f2f9d772647b82bb1768eb69f      0.1s
+ => => exporting manifest list sha256:cfefa61db2a0a17ef268fea53c261f3391c1579d221b3aa2400fb9dc9543d1e4             0.0s
+ => => naming to docker.io/library/ubuntu-dev:latest                                                               0.0s
+ => => unpacking to docker.io/library/ubuntu-dev:latest                                                            1.0s
+PS C:\Users\Saint Alex\Desktop\Netology HW\26. Docker> docker run -it ubuntu-dev
+root@adfd6a6868da:/# nano helloworld.cpp
+root@adfd6a6868da:/# g++ helloworld.cpp  -o helloworld
+root@adfd6a6868da:/# ./helloworld
+Hello world
+root@adfd6a6868da:/# cat helloworld.cpp
+#include <iostream>
+
+int main() {
+
+        std::cout << "Hello world" << std::endl;
+
+        return 0;
+}
+root@adfd6a6868da:/#
