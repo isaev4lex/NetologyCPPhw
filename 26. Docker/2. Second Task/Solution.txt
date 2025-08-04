@@ -39,3 +39,36 @@ PS C:\Users\Saint Alex\Desktop\Netology HW\26. Docker\2. Second Task> docker bui
 PS C:\Users\Saint Alex\Desktop\Netology HW\26. Docker\2. Second Task> docker run --rm cpp-gcc
 Hello from Docker Simeykov Containerovich
 PS C:\Users\Saint Alex\Desktop\Netology HW\26. Docker\2. Second Task>
+
+
+
+
+
+PS C:\Users\Saint Alex\Desktop\Netology HW\26. Docker\2. Second Task> docker build -t cpp-clang -f Dockerfile.clang .
+[+] Building 217.9s (10/10) FINISHED                                                                docker:desktop-linux
+ => [internal] load build definition from Dockerfile.clang                                                          0.0s
+ => => transferring dockerfile: 178B                                                                                0.0s
+ => [internal] load metadata for docker.io/library/ubuntu:22.04                                                     9.0s
+ => [internal] load .dockerignore                                                                                   0.0s
+ => => transferring context: 2B                                                                                     0.0s
+ => [1/5] FROM docker.io/library/ubuntu:22.04@sha256:1ec65b2719518e27d4d25f104d93f9fac60dc437f81452302406825c46fcc  2.2s
+ => => resolve docker.io/library/ubuntu:22.04@sha256:1ec65b2719518e27d4d25f104d93f9fac60dc437f81452302406825c46fcc  0.0s
+ => => sha256:1d387567261efec2a352c45b8d512a8db5c246122fb9f246ae9190252a0c3adb 29.54MB / 29.54MB                    1.5s
+ => => extracting sha256:1d387567261efec2a352c45b8d512a8db5c246122fb9f246ae9190252a0c3adb                           0.6s
+ => [internal] load build context                                                                                   0.1s
+ => => transferring context: 5.11kB                                                                                 0.0s
+ => [2/5] RUN apt update && apt install -y clang make                                                             176.0s
+ => [3/5] WORKDIR /app                                                                                              0.1s
+ => [4/5] COPY . .                                                                                                  0.1s
+ => [5/5] RUN make CXX=clang++                                                                                      0.5s
+ => exporting to image                                                                                             29.7s
+ => => exporting layers                                                                                            25.6s 
+ => => exporting manifest sha256:5c96ef842069d94f7da7b036cddaca9c3f804e8e83b4bec57f68f833553b35cb                   0.0s 
+ => => exporting config sha256:0ac93c7c9d7704c9d3b5c506a2344068679d949092faf7ede8e758eec1e18a5c                     0.0s 
+ => => exporting attestation manifest sha256:524bef87636a60e656a3f56adaf289b8f912c252dba513830654888ef13dbbd9       0.1s 
+ => => exporting manifest list sha256:7d0b72982978764548522f5dca90605782e4e4ba4072a8bfb72e1543416ad89c              0.0s 
+ => => naming to docker.io/library/cpp-clang:latest                                                                 0.0s 
+ => => unpacking to docker.io/library/cpp-clang:latest                                                              3.9s 
+PS C:\Users\Saint Alex\Desktop\Netology HW\26. Docker\2. Second Task> docker run --rm cpp-clang
+Hello from Docker Simeykov Containerovich
+PS C:\Users\Saint Alex\Desktop\Netology HW\26. Docker\2. Second Task> 
