@@ -401,3 +401,47 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+
+
+# C++ objects and libs
+*.slo
+*.lo
+*.o
+*.a
+*.la
+*.lai
+*.so
+*.dll
+*.dylib
+
+# Qt-specific generated files
+object_script.*
+*_plugin_import.cpp
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.qmlc
+*.jsc
+
+# Build system files
+Makefile*
+*build-*
+
+# Qt Creator and user files
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.qmlproject.user
+*.qmlproject.user.*
+*.autosave
+CMakeLists.txt.user*
+.qmake.cache
+.qmake.stash
+
+# OS-specific and temporary files
+.DS_Store
+Thumbs.db
+desktop.ini
