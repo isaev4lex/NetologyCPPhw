@@ -1,35 +1,26 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include <QString>
 
-#include <QPushButton>
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QScrollBar>
+static inline QString two(int v){ return (v < 10 ? QString("0%1").arg(v) : QString::number(v)); }
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    startBtnHeight_ = ui->startStopButton->height();
-    ui->startStopButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    ui->startStopButton->setMinimumHeight(startBtnHeight_);
 
-    applyBtnStyle(ui->startStopButton, "#39a9ce", "black");
+    ui->labelTime->setText("00:00.0");
+    ui->startStopButton->setText("Start");
+    ui->lapButton->setEnabled(false);
 
     connect(ui->startStopButton, &QPushButton::clicked, this, &MainWindow::onStartStop);
-    connect(&timer_, &QTimer::timeout, this, &MainWindow::updateTime);
-    timer_.setInterval(10);
+    connect(ui->clearButton,     &QPushButton::clicked, this, &MainWindow::onClear);
+    connect(ui->lapButton,       &QPushButton::clicked, this, &MainWindow::onLap);
 
-    lapContent_ = new QWidget(ui->lapArea);
-    lapLayout_  = new QHBoxLayout(lapContent_);
-    lapLayout_->setContentsMargins(0,0,0,0);
-    lapLayout_->setSpacing(8);
-    lapLayout_->addStretch();
-
-    ui->lapArea->setWidget(lapContent_);
-    ui->lapArea->setWidgetResizable(true);
-
+    connect(&sw_, &Stopwatch::elapsedChanged, this, &MainWindow::updateTimeLabel);
+    connect(&sw_, &Stopwatch::runningChanged, this, &MainWindow::onRunningChanged);
+    connect(&sw_, &Stopwatch::lapRecorded,    this, &MainWindow::onLapRecorded);
 }
 
 MainWindow::~MainWindow()
@@ -37,138 +28,51 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::applyBtnStyle(QPushButton* b, const QString& bg, const QString& fg)
-{
-    b->setStyleSheet(QString(
-                         "QPushButton {"
-                         "  background-color:%1;"
-                         "  color:%2;"
-                         "  border:1px solid #2b2b2b;"
-                         "  border-radius:28px;"
-                         "  padding:8px 16px;"
-                         "}"
-                         "QPushButton:pressed {"
-                         "  filter:brightness(0.9);"
-                         "}"
-                         ).arg(bg, fg));
-    b->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    b->setMinimumHeight(startBtnHeight_);
-}
-
 void MainWindow::onStartStop()
 {
-    if (!timer_.isActive()) {
-        baseTime_.start();
-        timer_.start();
-
-        ui->startStopButton->setText("Stop");
-        applyBtnStyle(ui->startStopButton, "red", "white");
-
-        int idxStart = ui->verticalLayout->indexOf(ui->startStopButton);
-
-        if (!resetButton_) {
-            resetButton_ = new QPushButton("Reset", this);
-            resetButton_->setFont(ui->startStopButton->font());
-            applyBtnStyle(resetButton_, "#6b6f75", "white");
-            resetButton_->setEnabled(true);
-            ui->verticalLayout->insertWidget(idxStart + 1, resetButton_);
-            connect(resetButton_, &QPushButton::clicked, this, &MainWindow::onReset);
-        } else {
-            applyBtnStyle(resetButton_, "#6b6f75", "white");
-            resetButton_->show();
-        }
-
-        if (!lapButton_) {
-            lapButton_ = new QPushButton("Lap", this);
-            lapButton_->setFont(ui->startStopButton->font());
-            applyBtnStyle(lapButton_, "#6b6f75", "white");
-            ui->verticalLayout->insertWidget(idxStart + 2, lapButton_);
-            connect(lapButton_, &QPushButton::clicked, this, &MainWindow::onLap);
-        } else {
-            applyBtnStyle(lapButton_, "#6b6f75", "white");
-            lapButton_->show();
-        }
-
+    if (sw_.isRunning()) {
+        sw_.stop();
     } else {
-        timer_.stop();
-
-        ui->startStopButton->setText("Start");
-        applyBtnStyle(ui->startStopButton, "#39a9ce", "black");
-
-        if (lapButton_) lapButton_->hide();
-        if (resetButton_) resetButton_->show();
+        sw_.start();
     }
 }
 
-void MainWindow::onReset()
+void MainWindow::onClear()
 {
-    timer_.stop();
-    ui->leStopwatch->setText("00:00.00");
-    clearLaps();
-    lapCount_ = 0;
-
-    if (resetButton_) resetButton_->hide();
-    if (lapButton_)  lapButton_->hide();
-
-    ui->startStopButton->setText("Start");
-    applyBtnStyle(ui->startStopButton, "#39a9ce", "black");
+    sw_.reset();
+    ui->lapsBrowser->clear();
 }
 
 void MainWindow::onLap()
 {
-    lapCount_++;
-    QString total = ui->leStopwatch->text();
-    QString lapTime = total;
-
-    addLap(lapTime, total);
+    sw_.markLap();
 }
 
-void MainWindow::updateTime()
+void MainWindow::updateTimeLabel(qint64 ms)
 {
-    int ms = baseTime_.elapsed();
-    int sec = ms / 1000;
-    int min = sec / 60;
-
-    QString text = QString("%1:%2.%3")
-                       .arg(min, 2, 10, QLatin1Char('0'))
-                       .arg(sec % 60, 2, 10, QLatin1Char('0'))
-                       .arg((ms % 1000) / 10, 2, 10, QLatin1Char('0'));
-
-    ui->leStopwatch->setText(text);
+    ui->labelTime->setText(formatTenths(ms));
 }
 
-void MainWindow::addLap(const QString& lapTime, const QString& totalTime)
+void MainWindow::onRunningChanged(bool running)
 {
-    QWidget* box = new QWidget(lapContent_);
-    QVBoxLayout* lay = new QVBoxLayout(box);
-    lay->setContentsMargins(6,6,6,6);
-
-    QLabel* num = new QLabel(QString("Lap %1").arg(lapCount_), box);
-    QLabel* l1 = new QLabel("Lap: " + lapTime, box);
-    QLabel* l2 = new QLabel("Total: " + totalTime, box);
-
-    num->setAlignment(Qt::AlignCenter);
-    l1->setAlignment(Qt::AlignCenter);
-    l2->setAlignment(Qt::AlignCenter);
-
-    lay->addWidget(num);
-    lay->addWidget(l1);
-    lay->addWidget(l2);
-
-    box->setFixedSize(90, 70);
-    box->setStyleSheet("background:#2b2d31; color:white; border-radius:8px;");
-
-    lapLayout_->insertWidget(lapLayout_->count()-1, box);
-
-    ui->lapArea->horizontalScrollBar()->setValue(ui->lapArea->horizontalScrollBar()->maximum());
+    ui->startStopButton->setText(running ? "STOP!!!!" : "Start");
+    ui->lapButton->setEnabled(running);
 }
 
-void MainWindow::clearLaps()
+void MainWindow::onLapRecorded(int index, qint64 lapMs)
 {
-    QLayoutItem* item;
-    while ((item = lapLayout_->takeAt(0))) {
-        if (item->widget()) delete item->widget();
-        delete item;
-    }
-    lapLayout_->addStretch();
+    const double secs = lapMs / 1000.0;
+    ui->lapsBrowser->append(
+        QString("Loop %1, time: %2 sec").arg(index).arg(QString::number(secs, 'f', 1))
+        );
+}
+
+QString MainWindow::formatTenths(qint64 ms)
+{
+    if (ms < 0) ms = 0;
+    const int totalSec = static_cast<int>(ms / 1000);
+    const int min  = totalSec / 60;
+    const int sec  = totalSec % 60;
+    const int tenth = static_cast<int>((ms % 1000) / 100);
+    return QString("%1:%2.%3").arg(two(min)).arg(two(sec)).arg(tenth);
 }
