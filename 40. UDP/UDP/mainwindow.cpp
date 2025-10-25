@@ -61,8 +61,6 @@ void MainWindow::on_pb_send_clicked()
     const QString text = ui->le_text->text();
     if (text.isEmpty()) return;
     udpWorker->SendText(text);
-    // опционально чистим поле:
-    // ui->le_text->clear();
 }
 
 void MainWindow::onTextDatagram(QString text, QString sender, int sizeBytes)

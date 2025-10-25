@@ -38,7 +38,6 @@ void UDPworker::ReadDatagram(QNetworkDatagram datagram)
         }
     }
 
-    // Фоллбек: если что-то непонятное прилетело — трактуем как текст
     {
         QString text = QString::fromUtf8(raw);
         const QString sender = datagram.senderAddress().toString();
