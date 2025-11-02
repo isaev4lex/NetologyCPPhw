@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BookingsDialog</class>
+ <widget class="QDialog" name="BookingsDialog">
+  <property name="windowTitle">
+   <string>Мои бронирования</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text"><string>Созданные бронирования</string></property>
+     <property name="alignment"><set>Qt::AlignCenter</set></property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableView" name="tvBookings"/>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hLayout">
+     <item>
+      <widget class="QPushButton" name="pbDelete">
+       <property name="text"><string>Удалить</string></property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="hspacer">
+       <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       <property name="sizeHint" stdset="0">
+        <size><width>40</width><height>20</height></size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="standardButtons"><set>QDialogButtonBox::Close</set></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
